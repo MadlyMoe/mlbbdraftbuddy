@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     *   {
     *       "suggestions": [
     *           {
-    *               "heroId": "1".
+    *               "heroId": "1",
     *               "heroName": "Miya",
     *               "winrate": 0.12,
     *               "confidence": 0.99,
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     */
 
     const { allyPicks, enemyPicks } = await req.json();
-    const suggestions = getSuggestions(allyPicks, enemyPicks);
+    const suggestions = await getSuggestions(allyPicks, enemyPicks);
 
     return Response.json({ suggestions });
 }
