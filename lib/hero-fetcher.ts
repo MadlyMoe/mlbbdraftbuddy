@@ -166,7 +166,7 @@ export async function heroPositionExtended(heros: number | null, lane: string | 
 
         const synergyWith = hero.data.relation.assist.target_hero_id;
         const counters = hero.data.relation.strong.target_hero_id;
-        const counteredBy = hero.data.relation.strong.target_hero_id;
+        const counteredBy = hero.data.relation.weak.target_hero_id;
 
 
         return {heroId, heroName, lanes, roles, synergyWith, counters, counteredBy}
