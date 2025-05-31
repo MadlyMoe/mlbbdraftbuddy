@@ -1,4 +1,4 @@
-import { getList } from "@/lib/hero-list";
+import { getAllHeros } from "@/lib/hero-fetcher";
 
 export async function GET(req: Request) {
 
@@ -41,7 +41,7 @@ export async function GET(req: Request) {
     */
 
 
-    const heros = await getList();
+    const heros = await getAllHeros();
 
     return Response.json({ heros });
 }

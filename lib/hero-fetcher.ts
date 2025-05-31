@@ -11,6 +11,7 @@ export async function numberOfHeros() {
     
     return Object.keys(response.data).length;
 }
+
 export async function heroPosition(heros: number) {
     let config = {
         method: 'get',
@@ -62,7 +63,7 @@ export async function heroRank(heros: number) {
 }
 
 
-export async function getList() {
+export async function getAllHeros() {
 
     let heros = await numberOfHeros();
     // Rank for Icon
