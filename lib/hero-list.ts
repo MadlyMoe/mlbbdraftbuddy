@@ -23,8 +23,8 @@ export async function heroPosition(heros: number) {
     // get id name roles lanes smallmap
 
     const list = response.data.data.records.map(hero => {
-        let hero_id = hero.data.hero_id;
-        let name = hero.data.hero.data.name;
+        let heroId = hero.data.hero_id;
+        let heroName = hero.data.hero.data.name;
         const lanes = (hero.data.hero.data.roadsort || [])
             .filter(item => item && item.data && item.data.road_sort_title)
             .map(item => item.data.road_sort_title);
@@ -34,7 +34,7 @@ export async function heroPosition(heros: number) {
         let banner = hero.data.hero.data.smallmap;
 
 
-        return {hero_id, name, lanes, roles, banner}
+        return {heroId, heroName, lanes, roles, banner}
     });
 
     return list;
@@ -71,11 +71,11 @@ export async function getList() {
     const pos = await heroPosition(heros);
 
     const list = pos.map(hero => {
-        const rankHero = rank.find( item => item.name === hero.name);
+        const rankHero = rank.find( item => item.name === hero.heroName);
 
         return {
             ...hero,
-            icon: rankHero.icon ?? ""
+            icon: rankHero? rankHero.icon:""
         };
     });
 

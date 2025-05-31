@@ -41,7 +41,7 @@ export async function GET(req: Request) {
     */
 
 
-    const list = await getList();
+    const heros = await getList();
 
-    return Response.json({ list });
+    return Response.json({ heros });
 }
