@@ -15,6 +15,7 @@ cd mlbbdraftbuddy
 # Install dependencies
 npm install
 npm install bootstrap
+npm install axios
 
 # Run server
 npm run dev

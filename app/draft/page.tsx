@@ -17,7 +17,7 @@ export default function DraftPage() {
   useEffect(() => {
     async function fetchHeroes() {
       try {
-        const res = await fetch('/api/draft/suggestions')
+        const res = await fetch('/api/hero')
         const json = await res.json();
         setHeroes(json.heros);
       }
