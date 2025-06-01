@@ -148,7 +148,6 @@ export default function DraftPage() {
                 }
                 if (filterMode === 'lane') {
                   return hero.lanes?.some((lane: string) => 
-                    // lane.toLowerCase() === selectedFilter.toLowerCase()
                     lane.toLowerCase().includes(selectedFilter.toLowerCase().replace('lane', ''))
                   );
                 }
