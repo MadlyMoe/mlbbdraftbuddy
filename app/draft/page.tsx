@@ -99,24 +99,27 @@ export default function DraftPage() {
               </li>
             ))}
           </ul>
+          
+          {/* Hero Draft Component */}
+          <div className={styles.heroScrollContainer}>
+            <div className='d-flex flex-wrap justify-content-center'>
+              {heroes.map((hero) =>
 
-          <div className="d-flex flex-wrap">
-            {heroes.map((hero) =>
+                /* Heroes Display Component */
+                <div
+                  key={hero.heroId}
+                  className={styles.heroCol}
+                >
+                  <img 
+                    src={hero.icon} 
+                    className={styles.heroIcon}
+                    alt={hero.heroName}
+                  />
+                  <p className="small">{hero.heroName}</p>
+                </div>
 
-              /* Heroes Display Component */
-              <div 
-                key={hero.heroId}
-                className={styles.heroCol}
-              >
-                <img 
-                  src={hero.icon} 
-                  className={styles.heroIcon}
-                  alt={hero.heroName}
-                />
-                <p className="small">{hero.heroName}</p>
-              </div>
-
-            )}
+              )}
+            </div>
           </div>
 
           {/* Back + Next Buttons */}
