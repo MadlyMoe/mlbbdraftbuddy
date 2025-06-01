@@ -30,6 +30,11 @@ export default function DraftPage() {
     fetchHeroes();
   }, []);
 
+  const [selectedRole, setSelectedRole] = useState<string>('All');
+  const handleRoleSelect = (role: string) => {
+    setSelectedRole(role);
+  }
+
   const [phaseIndex, setPhaseIndex] = useState(0);
   const phases = [
     'Team is banning',
@@ -95,15 +100,25 @@ export default function DraftPage() {
           <ul className="nav nav-tabs justify-content-center mb-3">
             {['All', 'Tank', 'Fighter', 'Assassin', 'Marksman', 'Mage', 'Support'].map(role => (
               <li className="nav-item" key={role}>
-                <a className="nav-link" href="#">{role}</a>
+                <a 
+                  className={`nav-link ${selectedRole === role ? 'active' : ''}`} 
+                  role='button'
+                  onClick={() => handleRoleSelect(role)}
+                >
+                  {role}
+                </a>
               </li>
             ))}
           </ul>
           
           {/* Hero Draft Component */}
           <div className={styles.heroScrollContainer}>
-            <div className='d-flex flex-wrap justify-content-center'>
-              {heroes.map((hero) =>
+            <div className='d-flex flex-wrap'>
+              {heroes.filter(hero => 
+                selectedRole === 'All' || hero.roles?.some((role: string) =>
+                  role.toLowerCase() === selectedRole.toLowerCase()
+                )
+              ).map((hero) =>
 
                 /* Heroes Display Component */
                 <div
