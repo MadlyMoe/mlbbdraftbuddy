@@ -6,8 +6,6 @@ DraftBuddy determines the best picks based on the bans and picks of both the ene
 ## Installation
 
 Make sure you have Git and Node.js installed on your 
-
-
 ```bash
 
 # Clone repo
@@ -16,7 +14,13 @@ cd mlbbdraftbuddy
 
 # Install dependencies
 npm install
+npm install bootstrap
 
 # Run server
 npm run dev
 ```
+
+## Made by:
+- MadlyMoe
+- tinyConan
+- Gameknight999
