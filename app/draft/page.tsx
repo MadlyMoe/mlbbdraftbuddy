@@ -30,9 +30,21 @@ export default function DraftPage() {
     fetchHeroes();
   }, []);
 
-  const [selectedRole, setSelectedRole] = useState<string>('All');
-  const handleRoleSelect = (role: string) => {
-    setSelectedRole(role);
+  const [filterMode, setFilterMode] = useState<'role' | 'lane'>('role');
+  const roleTabs = ['All', 'Tank', 'Fighter', 'Assassin', 'Marksman', 'Mage', 'Support'];
+  const laneTabs = ['All Lanes', 'Exp Lane', 'Gold Lane', 'Mid Lane', 'Roam', 'Jungle'];
+  const [selectedFilter, setSelectedFilter] = useState<string>('All');
+  
+  const handleFilterSelect = (filter: string) => {
+    setSelectedFilter(filter);
+  }
+
+  const handleSwapFilter = () => {
+    setFilterMode(prev => {
+      const newMode = prev === 'role' ? 'lane' : 'role';
+      setSelectedFilter(newMode === 'role' ? 'All' : 'All Lanes');
+      return newMode;
+    })
   }
 
   const [phaseIndex, setPhaseIndex] = useState(0);
@@ -96,30 +108,53 @@ export default function DraftPage() {
             </div>
           </div>
 
-          {/* Hero Role */}
-          <ul className="nav nav-tabs justify-content-center mb-3">
-            {['All', 'Tank', 'Fighter', 'Assassin', 'Marksman', 'Mage', 'Support'].map(role => (
-              <li className="nav-item" key={role}>
-                <a 
-                  className={`nav-link ${selectedRole === role ? 'active' : ''}`} 
-                  role='button'
-                  onClick={() => handleRoleSelect(role)}
-                >
-                  {role}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <div className='d-flex justify-content-center align-items-center gap-2 mb-3 flex-wrap'>
+            
+            {/* Swap Button */}
+            <button
+              className='btn btn-sm mt-1'
+              style={{height: '45px', width: '45px'}}
+              onClick={handleSwapFilter}
+            >
+              <img src="/right-left-solid.svg" alt="Swap Filter" style={{ width: '100%', height: '100%' }} />
+            </button>
+
+            {/* Hero Role */}
+            <ul className="nav nav-tabs mb-0">
+              {(filterMode === 'role' ? roleTabs : laneTabs).map(tab => (
+                <li className="nav-item" key={tab}>
+                  <a 
+                    className={`nav-link ${selectedFilter === tab ? 'active' : ''}`} 
+                    role='button'
+                    onClick={() => handleFilterSelect(tab)}
+                  >
+                    {tab}
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+          </div>
           
           {/* Hero Draft Component */}
           <div className={styles.heroScrollContainer}>
             <div className='d-flex flex-wrap'>
-              {heroes.filter(hero => 
-                selectedRole === 'All' || hero.roles?.some((role: string) =>
-                  role.toLowerCase() === selectedRole.toLowerCase()
-                )
-              ).map((hero) =>
-
+              {heroes.filter(hero => {
+                if (selectedFilter === 'All' || selectedFilter === 'All Lanes') return true;
+                if (filterMode === 'role') {
+                  return hero.roles?.some((role: string) => 
+                    role.toLowerCase() === selectedFilter.toLowerCase()
+                  );
+                }
+                if (filterMode === 'lane') {
+                  return hero.lanes?.some((lane: string) => 
+                    // lane.toLowerCase() === selectedFilter.toLowerCase()
+                    lane.toLowerCase().includes(selectedFilter.toLowerCase().replace('lane', ''))
+                  );
+                }
+                return true;
+              }).map((hero) => 
+                
                 /* Heroes Display Component */
                 <div
                   key={hero.heroId}
@@ -132,8 +167,9 @@ export default function DraftPage() {
                   />
                   <p className="small">{hero.heroName}</p>
                 </div>
-
-              )}
+  
+              )
+            }
             </div>
           </div>
 
