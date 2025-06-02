@@ -17,19 +17,21 @@ export default function Home() {
       const res = await fetch('/api/draft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamColor }),
+        body: JSON.stringify({ 
+          teamColor, 
+          teamBans: [],
+          enemyBans: [],
+          teamPicks: [],
+          enemyPicks: [],
+        }),
       });
 
       if (!res.ok) throw new Error('Failed to create draft');
 
-      const { draft } = await res.json();
+      const draft = await res.json();
       
-      const testId = 'TEST123';
-      const testTeamColor = 'blue';
-      // sessionStorage.setItem('draftId', draft.id);
-      sessionStorage.setItem('draftId', testId);
-      // sessionStorage.setItem('teamColor', teamColor);
-      sessionStorage.setItem('teamColor', testTeamColor);
+      sessionStorage.setItem('draftId', draft.id);
+      sessionStorage.setItem('teamColor', teamColor);
 
       router.push('/draft');
     } catch (err) {

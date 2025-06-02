@@ -1,22 +1,27 @@
 import { createDraft } from "@/lib/draft";
-import { create } from "domain";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+    try {
+        const {
+            teamColor,
+            teamBans = [],
+            enemyBans = [],
+            teamPicks = [],
+            enemyPicks = [],
+        } = await req.json();
 
-    const { teamColor, teamBans, enemyBans, teamPicks, enemyPicks } = await req.json();
-    const draft = createDraft(teamColor, teamBans, enemyBans, teamPicks, enemyPicks);
-    if (!draft) 
-    {
-        return NextResponse.json(
-            { error: 'Cannot create draft' },
-            { status: 500 }
-        );
+        if (!teamColor) {
+            return NextResponse.json(
+                {error: 'Missing teamColor'},
+                {status: 400}
+            )
+        }
+
+        const draft = await createDraft(teamColor, teamBans, enemyBans, teamPicks, enemyPicks);
+        return NextResponse.json(draft, {status: 201});
+    } catch (err) {
+        console.log("POST: /api/draft error: ", err);
+        return NextResponse.json({error: "Internal server error" }, {status: 500});
     }
-
-    return NextResponse.json(
-        draft,
-        { status: 201}
-    )
-
 };

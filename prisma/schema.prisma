@@ -84,10 +84,10 @@ model Authenticator {
 model Draft {
   id         String  @id @default(cuid())
   teamColor  String
-  teamBans   String?
-  enemyBans  String?
-  teamPicks  String?
-  enemyPicks String?
+  teamBans   Json
+  enemyBans  Json
+  teamPicks  Json
+  enemyPicks Json
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
