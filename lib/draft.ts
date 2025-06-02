@@ -2,8 +2,13 @@
 import prisma from "./prisma"
 // Create Draft object
 
-export async function createDraft(teamColor: string, teamBans?: string, teamPicks?: string, enemyBans?: string, enemyPicks?: string){
-
+export async function createDraft(
+  teamColor: string, 
+  teamBans: any[] = [], 
+  teamPicks: any[] = [], 
+  enemyBans: any[] = [], 
+  enemyPicks: any[] = []
+) {
   if (!teamColor || !['blue', 'red'].includes(teamColor)) {
     return null;
   }
@@ -15,10 +20,8 @@ export async function createDraft(teamColor: string, teamBans?: string, teamPick
       enemyBans: enemyBans,
       teamPicks: teamPicks,
       enemyPicks: enemyPicks,
-    }
+    },
   })
 
   return draft;
-
 }
-
