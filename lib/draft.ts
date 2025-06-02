@@ -14,7 +14,7 @@ export async function createDraft(teamColor: string, teamBans?: string, teamPick
       teamBans: teamBans,
       enemyBans: enemyBans,
       teamPicks: teamPicks,
-      enemyBans: enemyBans,
+      enemyPicks: enemyPicks,
     }
   })
 
