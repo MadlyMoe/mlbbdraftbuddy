@@ -6,6 +6,17 @@ import styles from './DraftPage.module.css';
 import React, { use, useState, useEffect } from 'react';
 
 export default function DraftPage() {
+  // Passed states
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [teamColor, setTeamColor] = useState<string | null>(null);
+  useEffect(() => {
+    const id = sessionStorage.getItem('draftId');
+    const color = sessionStorage.getItem('teamColor');
+    setDraftId(id);
+    setTeamColor(color);
+  }, [])
+
+
   const [teamBans, setTeamBans] = useState<string[]>([
     '/ban-1.png', '/ban-2.png', '/ban-3.png', '/ban-4.png', '/ban-5.png',
   ]);
@@ -81,6 +92,12 @@ export default function DraftPage() {
 
       {/* Main Layout */}
       <div className="row">
+        
+        {/* TODO: Delete this but for now it's testing */}
+        <h3 className="text-black">
+          {phases[phaseIndex]} — <span className="text-capitalize">{teamColor} team</span>
+        </h3>
+
 
         {/* Left Sidebar: Team Picks */}
         <div className="col-2 border-end text-white">

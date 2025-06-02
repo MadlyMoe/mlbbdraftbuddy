@@ -13,7 +13,28 @@ export default function Home() {
   };
 
   const handleTeamSelect = async (teamColor: 'red' | 'blue') => {
+    try {
+      const res = await fetch('/api/draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamColor }),
+      });
 
+      if (!res.ok) throw new Error('Failed to create draft');
+
+      const { draft } = await res.json();
+      
+      const testId = 'TEST123';
+      const testTeamColor = 'blue';
+      // sessionStorage.setItem('draftId', draft.id);
+      sessionStorage.setItem('draftId', testId);
+      // sessionStorage.setItem('teamColor', teamColor);
+      sessionStorage.setItem('teamColor', testTeamColor);
+
+      router.push('/draft');
+    } catch (err) {
+      console.log('Error creating draft', err);
+    }
   }
 
   return (
@@ -26,12 +47,12 @@ export default function Home() {
         </button>
 
         {/* Button for Red Team */}
-        <button onClick={handleToDraft}>
+        <button onClick={() => handleTeamSelect('red')}>
           <p>Red Team</p>
         </button>
 
         {/* Button for Blue Team */}
-        <button onClick={handleToDraft}>
+        <button onClick={() => handleTeamSelect('blue')}>
           <p>Blue Team</p>
         </button>
 
