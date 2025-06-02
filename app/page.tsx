@@ -13,6 +13,10 @@ export default function Home() {
     router.push('/draft');
   };
 
+  const handleTeamSelect = async (teamColor: 'red' | 'blue') => {
+    
+  }
+
   return (
     <div className={styles.page}>
       <main>
@@ -20,6 +24,16 @@ export default function Home() {
         {/* Button for Draft Page */}
         <button onClick={handleToDraft}>
           <p>Draft Page</p>
+        </button>
+
+        {/* Button for Red Team */}
+        <button onClick={handleToDraft}>
+          <p>Red Team</p>
+        </button>
+
+        {/* Button for Blue Team */}
+        <button onClick={handleToDraft}>
+          <p>Blue Team</p>
         </button>
 
       </main>
