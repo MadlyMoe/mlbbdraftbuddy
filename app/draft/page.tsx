@@ -6,6 +6,17 @@ import styles from './DraftPage.module.css';
 import React, { use, useState, useEffect } from 'react';
 
 export default function DraftPage() {
+  // Passed states
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [teamColor, setTeamColor] = useState<string | null>(null);
+  useEffect(() => {
+    const id = sessionStorage.getItem('draftId');
+    const color = sessionStorage.getItem('teamColor');
+    setDraftId(id);
+    setTeamColor(color);
+  }, [])
+
+
   const [teamBans, setTeamBans] = useState<string[]>([
     '/ban-1.png', '/ban-2.png', '/ban-3.png', '/ban-4.png', '/ban-5.png',
   ]);
@@ -29,6 +40,23 @@ export default function DraftPage() {
 
     fetchHeroes();
   }, []);
+
+  const [filterMode, setFilterMode] = useState<'role' | 'lane'>('role');
+  const roleTabs = ['All', 'Tank', 'Fighter', 'Assassin', 'Marksman', 'Mage', 'Support'];
+  const laneTabs = ['All Lanes', 'Exp Lane', 'Gold Lane', 'Mid Lane', 'Roam', 'Jungle'];
+  const [selectedFilter, setSelectedFilter] = useState<string>('All');
+  
+  const handleFilterSelect = (filter: string) => {
+    setSelectedFilter(filter);
+  }
+
+  const handleSwapFilter = () => {
+    setFilterMode(prev => {
+      const newMode = prev === 'role' ? 'lane' : 'role';
+      setSelectedFilter(newMode === 'role' ? 'All' : 'All Lanes');
+      return newMode;
+    })
+  }
 
   const [phaseIndex, setPhaseIndex] = useState(0);
   const phases = [
@@ -64,6 +92,12 @@ export default function DraftPage() {
 
       {/* Main Layout */}
       <div className="row">
+        
+        {/* TODO: Delete this but for now it's testing */}
+        <h3 className="text-black">
+          {phases[phaseIndex]} — <span className="text-capitalize">{teamColor} team</span>
+        </h3>
+
 
         {/* Left Sidebar: Team Picks */}
         <div className="col-2 border-end text-white">
@@ -91,32 +125,68 @@ export default function DraftPage() {
             </div>
           </div>
 
-          {/* Hero Role */}
-          <ul className="nav nav-tabs justify-content-center mb-3">
-            {['All', 'Tank', 'Fighter', 'Assassin', 'Marksman', 'Mage', 'Support'].map(role => (
-              <li className="nav-item" key={role}>
-                <a className="nav-link" href="#">{role}</a>
-              </li>
-            ))}
-          </ul>
+          <div className='d-flex justify-content-center align-items-center gap-2 mb-3 flex-wrap'>
+            
+            {/* Swap Button */}
+            <button
+              className='btn btn-sm mt-1'
+              style={{height: '45px', width: '45px'}}
+              onClick={handleSwapFilter}
+            >
+              <img src="/right-left-solid.svg" alt="Swap Filter" style={{ width: '100%', height: '100%' }} />
+            </button>
 
-          <div className="d-flex flex-wrap">
-            {heroes.map((hero) =>
+            {/* Hero Role */}
+            <ul className="nav nav-tabs mb-0">
+              {(filterMode === 'role' ? roleTabs : laneTabs).map(tab => (
+                <li className="nav-item" key={tab}>
+                  <a 
+                    className={`nav-link ${selectedFilter === tab ? 'active' : ''}`} 
+                    role='button'
+                    onClick={() => handleFilterSelect(tab)}
+                  >
+                    {tab}
+                  </a>
+                </li>
+              ))}
+            </ul>
 
-              /* Heroes Display Component */
-              <div 
-                key={hero.heroId}
-                className={styles.heroCol}
-              >
-                <img 
-                  src={hero.icon} 
-                  className={styles.heroIcon}
-                  alt={hero.heroName}
-                />
-                <p className="small">{hero.heroName}</p>
-              </div>
-
-            )}
+          </div>
+          
+          {/* Hero Draft Component */}
+          <div className={styles.heroScrollContainer}>
+            <div className='d-flex flex-wrap'>
+              {heroes.filter(hero => {
+                if (selectedFilter === 'All' || selectedFilter === 'All Lanes') return true;
+                if (filterMode === 'role') {
+                  return hero.roles?.some((role: string) => 
+                    role.toLowerCase() === selectedFilter.toLowerCase()
+                  );
+                }
+                if (filterMode === 'lane') {
+                  return hero.lanes?.some((lane: string) => 
+                    lane.toLowerCase().includes(selectedFilter.toLowerCase().replace('lane', ''))
+                  );
+                }
+                return true;
+              }).map((hero) => 
+                
+                /* Heroes Display Component */
+                <div
+                  key={hero.heroId}
+                  className={styles.heroCol}
+                >
+                  <img 
+                    src={hero.icon} 
+                    className={styles.heroIcon}
+                    alt={hero.heroName}
+                  />
+                  <p className="small">{hero.heroName}</p>
+                </div>
+  
+              )
+            }
+            </div>
           </div>
 
           {/* Back + Next Buttons */}
