@@ -14,12 +14,20 @@ export async function POST(req: Request) {
     *   
     *   Example Input:
     *   {
-    *       "allyPicks": ["Miya", "Layla"],
-    *       "enemyPicks": ["Tigreal", "Zilong"]
+    *       "allyBans": [1, 6],
+    *       "allyPicks": [1, 9],
+    *       "enemyBans": [6, 4],
+    *       "enemyPicks": [12, 7]
     *   }
     * 
     *   Example Output:
     *   {
+    *       "draft": {
+    *           "allyBans": [1, 6],
+    *           "allyPicks": [1, 6],
+    *           "enemyBans": [1, 6],
+    *           "enemyPicks": [1, 6]
+    *       }
     *       "suggestions": [
     *           {
     *               "heroId": "1",

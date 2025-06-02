@@ -1,22 +1,22 @@
-import { PrismaClient } from '@prisma/client';
-import { error } from 'console';
-import { NextResponse } from 'next/server';
-
-const prisma = new PrismaClient();
+import { createDraft } from "@/lib/draft";
+import { create } from "domain";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const { teamColor } = await req.json();
 
-  if (!teamColor || !['blue', 'red'].includes(teamColor)) {
+    const { teamColor, teamBans, enemyBans, teamPicks, enemyPicks } = await req.json();
+    const draft = createDraft(teamColor, teamBans, enemyBans, teamPicks, enemyPicks);
+    if (!draft) 
+    {
+        return NextResponse.json(
+            { error: 'Cannot create draft' },
+            { status: 500 }
+        );
+    }
+
     return NextResponse.json(
-      { error: 'Invalid or missing teamColor'},
-      { status: 400 }
-    );
-  }
+        draft,
+        { status: 201}
+    )
 
-  try {
-    const draft = await prisma.draft.create({
-      
-    })
-  }
-}
+};
