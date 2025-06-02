@@ -95,7 +95,7 @@ export default function DraftPage() {
         
         {/* TODO: Delete this but for now it's testing */}
         <h3 className="text-black">
-          {phases[phaseIndex]} — <span className="text-capitalize">{teamColor} team</span>
+          {phases[phaseIndex]} — <span className="text-capitalize">{teamColor} team | draftid {draftId}</span>
         </h3>
 
 
