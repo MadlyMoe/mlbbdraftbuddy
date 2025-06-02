@@ -16,10 +16,12 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main>
+
         {/* Button for Draft Page */}
         <button onClick={handleToDraft}>
           <p>Draft Page</p>
         </button>
+
       </main>
     </div>
   );
