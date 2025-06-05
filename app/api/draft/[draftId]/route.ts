@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import { deleteDraft, getDraft } from "@/lib/draft";
+import { deleteDraft, getDraft, updateDraft } from "@/lib/draft";
 
 /*
  *  API Route to get individual draft by Id
@@ -89,6 +89,47 @@ export async function DELETE(
     else return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   } catch (err) {
     console.log("DELETE: /api/draft/[draftId] error: ", err);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(
+  req: Request,
+  { params }: { params: Promise<{ draftId: string }> }
+) {
+  try {
+    const session = await auth();
+
+    // If not logged in
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { draftId } = await params;
+    const {
+      teamColor,
+      teamBans = [],
+      enemyBans = [],
+      teamPicks = [],
+      enemyPicks = [],
+    } = await req.json();
+
+    const updatedDraft = await updateDraft(
+      draftId,
+      teamColor,
+      teamBans,
+      enemyBans,
+      teamPicks,
+      enemyPicks,
+      session.user?.id
+    );
+
+    return NextResponse.json(updatedDraft);
+  } catch (err) {
+    console.log("PUT: /api/draft/[draftId] error: ", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

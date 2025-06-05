@@ -87,3 +87,41 @@ export async function deleteDraft(draftId: string, userId: string | undefined) {
     return null;
   }
 }
+
+export async function updateDraft(
+  draftId: string,
+  teamColor: string,
+  teamBans: any[] = [],
+  enemyBans: any[] = [],
+  teamPicks: any[] = [],
+  enemyPicks: any[] = [],
+  userId: string | undefined
+) {
+  if (!userId) {
+    return null;
+  }
+
+  // Return just the draft owner's userId
+  const draftOwner = await prisma.draft.findUnique({
+    where: { id: draftId },
+    select: { userId: true },
+  });
+
+  // Check if owner then delete
+  if (draftOwner?.userId === userId) {
+    const updateDraft = await prisma.draft.update({
+      where: { id: draftId },
+      data: {
+        teamColor: teamColor,
+        teamBans: teamBans,
+        enemyBans: enemyBans,
+        teamPicks: teamPicks,
+        enemyPicks: enemyPicks,
+        User: { connect: { id: userId } },
+      },
+    });
+    return updateDraft;
+  } else {
+    return null;
+  }
+}
