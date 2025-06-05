@@ -12,16 +12,22 @@ export async function POST(req: Request) {
         } = await req.json();
 
         if (!teamColor) {
-            return NextResponse.json(
-                {error: 'Missing teamColor'},
-                {status: 400}
-            )
+      return NextResponse.json({ error: "Missing teamColor" }, { status: 400 });
         }
 
-        const draft = await createDraft(teamColor, teamBans, enemyBans, teamPicks, enemyPicks);
-        return NextResponse.json(draft, {status: 201});
+    const draft = await createDraft(
+      teamColor,
+      teamBans,
+      enemyBans,
+      teamPicks,
+      enemyPicks
+    );
+    return NextResponse.json(draft, { status: 201 });
     } catch (err) {
         console.log("POST: /api/draft error: ", err);
-        return NextResponse.json({error: "Internal server error" }, {status: 500});
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
     }
-};
+}
