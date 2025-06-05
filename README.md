@@ -5,9 +5,7 @@ DraftBuddy determines the best picks based on the bans and picks of both the ene
 
 ## Installation
 
-Make sure you have Git and Node.js installed on your 
-
-
+Make sure you have Git, Node.js and SQLite3 installed on your 
 ```bash
 
 # Clone repo
@@ -16,6 +14,12 @@ cd mlbbdraftbuddy
 
 # Install dependencies
 npm install
+npm install bootstrap
+npm install axios
+
+# Set up database & ORM
+npx prisma generate
+npx prisma migrate dev # this runs all the sql quieries, in the order they've been made
 
 # Run server
 npm run dev
