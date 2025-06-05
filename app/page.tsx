@@ -69,8 +69,8 @@ export default function Home() {
         </Link>
 
         {/* Button for User Stats */}
-        <Link href="/protected" className="p-2">
-          User
+        <Link href="/debug" className="p-2">
+          Debug
         </Link>
       </main>
     </div>
