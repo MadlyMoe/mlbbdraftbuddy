@@ -73,6 +73,11 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const {
       teamColor,
       teamBans = [],
@@ -90,9 +95,15 @@ export async function POST(req: Request) {
       teamBans,
       enemyBans,
       teamPicks,
-      enemyPicks
+      enemyPicks,
+      session.user?.id
     );
-    return NextResponse.json(draft, { status: 201 });
+    if (draft) return NextResponse.json(draft, { status: 201 });
+    else
+      return NextResponse.json(
+        { error: "Internal server error" },
+        { status: 500 }
+      );
   } catch (err) {
     console.log("POST: /api/draft error: ", err);
     return NextResponse.json(
