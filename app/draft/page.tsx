@@ -227,16 +227,10 @@ export default function DraftPage() {
 
     if (currentPhase.includes('team') && teamBanIndex < 5) {
       setStagedTeamHeroIcon(hero.icon);
-      // const updated = [...teamBans]
-      // updated[teamBanIndex] = hero.icon;
-      // setTeamBans(updated);
     }
 
     else if (currentPhase.includes('enemy') && enemyBanIndex < 5) {
       setStagedEnemyHeroIcon(hero.icon);
-      // const updated = [...enemyBans];
-      // updated[enemyBanIndex] = hero.icon;
-      // setEnemyBans(updated);
     }
   };
 
