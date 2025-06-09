@@ -235,7 +235,7 @@ export default function DraftPage() {
       }
     }
 
-    else if (phases[newPhaseIndex].includes('picking')) {
+    else if (phases[newPhaseIndex].toLowerCase().includes('picking')) {
       setStagedTeamHeroIcon(null);
       setStagedEnemyHeroIcon(null);
 
@@ -255,12 +255,12 @@ export default function DraftPage() {
       }
 
       else if (currentPhase.includes('enemy') && enemyPickIndex > 0) {
-        const newIndex = enemyBanIndex - 1;
+        const newIndex = enemyPickIndex - 1;
         const heroIcon = enemyPicks[newIndex];
         const pickedHero = heroes.find(h => h.icon === heroIcon);
 
         if (pickedHero && enemyPickedHeroIds.includes(pickedHero.heroId)) {
-          setEnemyBannedHeroIds(prev => prev.filter(id => id !== pickedHero.heroId));
+          setEnemyPickedHeroIds(prev => prev.filter(id => id !== pickedHero.heroId));
         }
 
         const updated = [...enemyPicks];
@@ -361,7 +361,7 @@ export default function DraftPage() {
         setStagedEnemyHeroIcon(hero.icon);
       }
 
-      else if (isCurrentPhaseBan() && enemyPickIndex < 5) {
+      else if (isCurrentPhasePick() && enemyPickIndex < 5) {
         setStagedEnemyHeroIcon(hero.icon);
       }
     }
@@ -426,7 +426,17 @@ export default function DraftPage() {
             /* Team Display Component */
             <div key={i} className="mb-3 text-center">
               <div className="bg-dark p-2 rounded">
-                <img src="/avatar-placeholder.png" alt={`Team ${i + 1}`} className="img-fluid rounded mb-1" />
+                <img
+                  src={ isCurrentPhasePick() && 
+                    phases[phaseIndex].toLowerCase().includes('team') &&
+                    i === teamPickIndex && 
+                    stagedTeamHeroIcon 
+                      ? stagedTeamHeroIcon 
+                      : teamPicks[i]
+                  }
+                  alt={`Team ${i + 1}`} 
+                  className="img-fluid rounded mb-1" 
+                />
                 <p className="mb-0">Team {i + 1}</p>
               </div>
             </div>
@@ -525,7 +535,17 @@ export default function DraftPage() {
             /* Enemy Display Component */
             <div key={i} className="mb-3 text-center">
               <div className="bg-dark p-2 rounded">
-                <img src="/enemy-placeholder.png" alt={`Enemy ${i + 1}`} className="img-fluid rounded mb-1" />
+                <img
+                  src={ isCurrentPhasePick() && 
+                    phases[phaseIndex].toLowerCase().includes('enemy') &&
+                    i === enemyPickIndex &&
+                    stagedEnemyHeroIcon
+                      ? stagedEnemyHeroIcon 
+                      : enemyPicks[i]
+                  }
+                  alt={`Enemy ${i + 1}`} 
+                  className="img-fluid rounded mb-1" 
+                />
                 <p className="mb-0">Enemy {i + 1}</p>
               </div>
             </div>
