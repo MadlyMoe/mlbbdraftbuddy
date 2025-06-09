@@ -277,16 +277,28 @@ export default function DraftPage() {
   }, []);
 
   const handleHeroClick = (hero: any) => {
-    if (!isCurrentPhaseBan()) return;
+    if (!(isCurrentPhaseBan() || isCurrentPhasePick())) return;
 
     const currentPhase = phases[phaseIndex].toLowerCase();
 
-    if (currentPhase.includes('team') && teamBanIndex < 5) {
-      setStagedTeamHeroIcon(hero.icon);
+    if (currentPhase.includes('team')) {
+      if (isCurrentPhaseBan() && teamBanIndex < 5) {
+        setStagedTeamHeroIcon(hero.icon);
+      }
+
+      else if (isCurrentPhasePick() && teamPickIndex < 5) {
+        setStagedTeamHeroIcon(hero.icon);
+      }
     }
 
-    else if (currentPhase.includes('enemy') && enemyBanIndex < 5) {
-      setStagedEnemyHeroIcon(hero.icon);
+    else if (currentPhase.includes('enemy')) {
+      if (isCurrentPhaseBan() && enemyBanIndex < 5) {
+        setStagedEnemyHeroIcon(hero.icon);
+      }
+
+      else if (isCurrentPhaseBan() && enemyPickIndex < 5) {
+        setStagedEnemyHeroIcon(hero.icon);
+      }
     }
   };
 
