@@ -110,6 +110,16 @@ export default function DraftPage() {
       }
     }
 
+    else if (isCurrentPhasePick()) {
+      if (currentPhase.includes('team')) {
+        return stagedTeamHeroIcon === null;
+      }
+
+      else if (currentPhase.includes('enemy')) {
+        return stagedEnemyHeroIcon === null;
+      }
+    }
+
     return false;
   }
 
@@ -215,8 +225,6 @@ export default function DraftPage() {
   ]);
   const [teamPickIndex, setTeamPickIndex] = useState(0);
   const [enemyPickIndex, setEnemyPickIndex] = useState(0);
-  const [stagedTeamPickIcon, setStagedTeamPickIcon] = useState<string | null>(null);
-  const [stagedEnemyPickIcon, setStagedEnemyPickIcon] = useState<string | null>(null);
   const [teamPickedHeroIds, setTeamPickedHeroIds] = useState<string[]>([]);
   const [enemyPickedHeroIds, setEnemyPickedHeroIds] = useState<string[]>([]);
   
