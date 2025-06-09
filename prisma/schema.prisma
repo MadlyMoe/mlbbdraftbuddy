@@ -17,8 +17,10 @@ model User {
   email         String          @unique
   emailVerified DateTime?
   image         String?
+  role          String?
   accounts      Account[]
   sessions      Session[]
+  drafts        Draft[]         @relation("UserDrafts")
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
@@ -82,7 +84,7 @@ model Authenticator {
 }
 
 model Draft {
-  id         String  @id @default(cuid())
+  id         String @id @default(cuid())
   teamColor  String
   teamBans   Json
   enemyBans  Json
@@ -91,4 +93,6 @@ model Draft {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  userId    String?
+  User      User?    @relation("UserDrafts", fields: [userId], references: [id])
 }
