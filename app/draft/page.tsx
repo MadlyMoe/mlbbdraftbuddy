@@ -96,6 +96,23 @@ export default function DraftPage() {
 
   }, [teamColor]);
 
+  // Next Disabled
+  function isNextDisabled(): boolean {
+    const currentPhase = phases[phaseIndex].toLowerCase();
+
+    if (isCurrentPhaseBan()) {
+      if (currentPhase.includes('team')) {
+        return stagedTeamHeroIcon === null;
+      }
+
+      else if (currentPhase.includes('enemy')) {
+        return stagedEnemyHeroIcon === null;
+      }
+    }
+
+    return false;
+  }
+
   // Next and Back Buttons
   const handleNext = () => {
     const currentPhase = phases[phaseIndex].toLowerCase();
@@ -385,7 +402,7 @@ export default function DraftPage() {
           {/* Back + Next Buttons */}
           <div className="text-center mt-3">
             <button className="btn btn-secondary me-3 px-4" onClick={handleBack} disabled={phaseIndex === 0}>Back</button>
-            <button className="btn btn-warning px-4" onClick={handleNext}>Next</button>
+            <button className="btn btn-warning px-4" onClick={handleNext} disabled={isNextDisabled()}>Next</button>
           </div>
         </div>
 
