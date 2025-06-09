@@ -421,10 +421,14 @@ export default function DraftPage() {
         {/* Left Sidebar: Team Picks */}
         <div className="col-2 border-end text-white">
           <h5 className='text-dark'>Team</h5>
-          {[...Array(5)].map((_, i) => (
+          {[...Array(5)].map((_, i) => {
 
-            /* Team Display Component */
-            <div key={i} className="mb-3 text-center">
+            const isPreview = isCurrentPhasePick() && phases[phaseIndex].toLowerCase().includes('team') && i === teamPickIndex && stagedTeamHeroIcon
+            const isLockedIn = heroes.some(h => h.icon === teamPicks[i] && teamPickedHeroIds.includes(h.heroId));
+
+            return (
+              /* Team Display Component */
+              <div key={i} className="mb-3 text-center">
               <div className="bg-dark p-2 rounded">
                 <img
                   src={ isCurrentPhasePick() && 
@@ -435,13 +439,20 @@ export default function DraftPage() {
                       : teamPicks[i]
                   }
                   alt={`Team ${i + 1}`} 
-                  className="img-fluid rounded mb-1" 
+                  className={`img-fluid mb-1 ${isPreview ? styles.previewPick : isLockedIn ? styles.lockedPick : ''}`}
+                  style={{
+                    width: '4rem',
+                    height: '4rem',
+                    objectFit: 'cover',
+                    borderRadius: '0.5rem'
+                  }}
                 />
                 <p className="mb-0">Team {i + 1}</p>
               </div>
             </div>
+            );
 
-          ))}
+          })}
         </div>
 
         {/* Center Panel */}
@@ -486,7 +497,12 @@ export default function DraftPage() {
           <div className={styles.heroScrollContainer}>
             <div className='d-flex flex-wrap'>
               {heroes.filter(hero => {
-                if (teamBannedHeroIds.includes(hero.heroId) || enemyBannedHeroIds.includes(hero.heroId)) return false;
+                if (
+                  teamBannedHeroIds.includes(hero.heroId) || 
+                  enemyBannedHeroIds.includes(hero.heroId) || 
+                  teamPickedHeroIds.includes(hero.heroId) || 
+                  enemyPickedHeroIds.includes(hero.heroId)
+                ) return false;
                 if (selectedFilter === 'All' || selectedFilter === 'All Lanes') return true;
                 if (filterMode === 'role') {
                   return hero.roles?.some((role: string) => 
@@ -530,27 +546,38 @@ export default function DraftPage() {
         {/* Right Sidebar: Enemy Picks */}
         <div className="col-2 border-start text-white">
           <h5 className='text-dark'>Enemy</h5>
-          {[...Array(5)].map((_, i) => (
+          {[...Array(5)].map((_, i) => {
 
-            /* Enemy Display Component */
-            <div key={i} className="mb-3 text-center">
-              <div className="bg-dark p-2 rounded">
-                <img
-                  src={ isCurrentPhasePick() && 
-                    phases[phaseIndex].toLowerCase().includes('enemy') &&
-                    i === enemyPickIndex &&
-                    stagedEnemyHeroIcon
-                      ? stagedEnemyHeroIcon 
-                      : enemyPicks[i]
-                  }
-                  alt={`Enemy ${i + 1}`} 
-                  className="img-fluid rounded mb-1" 
-                />
-                <p className="mb-0">Enemy {i + 1}</p>
+            const isPreview = isCurrentPhasePick() && phases[phaseIndex].toLowerCase().includes('enemy') && i === enemyPickIndex && stagedEnemyHeroIcon;
+            const isLockedIn = heroes.some(h => h.icon === enemyPicks[i] && enemyPickedHeroIds.includes(h.heroId));
+
+            return (
+              /* Enemy Display Component */
+              <div key={i} className="mb-3 text-center">
+                <div className="bg-dark p-2 rounded">
+                  <img
+                    src={ isCurrentPhasePick() && 
+                      phases[phaseIndex].toLowerCase().includes('enemy') &&
+                      i === enemyPickIndex &&
+                      stagedEnemyHeroIcon
+                        ? stagedEnemyHeroIcon 
+                        : enemyPicks[i]
+                    }
+                    alt={`Enemy ${i + 1}`} 
+                    className={`img-fluid mb-1 ${isPreview ? styles.previewPick : isLockedIn ? styles.lockedPick : ''}`}
+                    style={{
+                      width: '4rem',
+                      height: '4rem',
+                      objectFit: 'cover',
+                      borderRadius: '0.5rem'
+                    }} 
+                  />
+                  <p className="mb-0">Enemy {i + 1}</p>
+                </div>
               </div>
-            </div>
+            );
 
-          ))}
+          })}
         </div>
 
       </div>
