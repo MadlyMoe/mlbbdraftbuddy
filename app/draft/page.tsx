@@ -16,31 +16,7 @@ export default function DraftPage() {
     setTeamColor(color);
   }, [])
 
-
-  const [teamBans, setTeamBans] = useState<string[]>([
-    '/ban-1.png', '/ban-2.png', '/ban-3.png', '/ban-4.png', '/ban-5.png',
-  ]);
-  const [enemyBans, setEnemyBans] = useState<string[]>([
-    '/ban-6.png', '/ban-7.png', '/ban-8.png', '/ban-9.png', '/ban-10.png',
-  ]);
-
-  const [heroes, setHeroes] = useState<any[]>([]);
-  useEffect(() => {
-    async function fetchHeroes() {
-      try {
-        const res = await fetch('/api/hero')
-        const json = await res.json();
-        setHeroes(json.heros);
-      }
-
-      catch (err) {
-        console.log("Failed to fetch heros: ", err);
-      }
-    }
-
-    fetchHeroes();
-  }, []);
-
+  // Filter Section
   const [filterMode, setFilterMode] = useState<'role' | 'lane'>('role');
   const roleTabs = ['All', 'Tank', 'Fighter', 'Assassin', 'Marksman', 'Mage', 'Support'];
   const laneTabs = ['All Lanes', 'Exp Lane', 'Gold Lane', 'Mid Lane', 'Roam', 'Jungle'];
@@ -59,15 +35,337 @@ export default function DraftPage() {
   }
 
   const [phaseIndex, setPhaseIndex] = useState(0);
-  const phases = [
-    'Team is banning',
-    'Enemy is picking',
-    'Enemy is banning',
-    'Team is picking',
-  ];
+  const phases = React.useMemo(() => {
+    
+    // Blue Team is First Pick (Click Blue Team)
+    if (teamColor === 'blue') {
+      return [
+        'Team is banning (1)',
+        'Team is banning (2)',
+        'Team is banning (3)',
+        'Enemy is banning (1)',
+        'Enemy is banning (2)',
+        'Enemy is banning (3)',
+        'Team is banning (4)',
+        'Team is banning (5)',
+        'Enemy is banning (4)',
+        'Enemy is banning (5)',
+        'Team is picking (1)',
+        'Enemy is picking (1)',
+        'Enemy is picking (2)',
+        'Team is picking (2)',
+        'Team is picking (3)',
+        'Enemy is picking (3)',
+        'Enemy is picking (4)',
+        'Team is picking (4)',
+        'Team is picking (5)',
+        'Enemy is picking (5)'
+      ]
+    }
 
-  const handleNext = () => setPhaseIndex((phaseIndex + 1) % phases.length);
-  const handleBack = () => setPhaseIndex((phaseIndex - 1 + phases.length) % phases.length);
+    // Red Team is First Pick (Click Red Team)
+    else if (teamColor === 'red') {
+      return [
+        'Team is banning (1)',
+        'Team is banning (2)',
+        'Team is banning (3)',
+        'Enemy is banning (1)',
+        'Enemy is banning (2)',
+        'Enemy is banning (3)',
+        'Team is banning (4)',
+        'Team is banning (5)',
+        'Enemy is banning (4)',
+        'Enemy is banning (5)',
+        'Enemy is picking (1)',
+        'Team is picking (1)',
+        'Team is picking (2)',
+        'Enemy is picking (2)',
+        'Enemy is picking (3)',
+        'Team is picking (3)',
+        'Team is picking (4)',
+        'Enemy is picking (4)',
+        'Enemy is picking (5)',
+        'Team is picking (5)'
+      ];
+    }
+
+    else {
+      // TODO: Fix the error message
+      return ['ERROR_Detected'];
+    }
+
+  }, [teamColor]);
+
+  // Next Disabled
+  function isNextDisabled(): boolean {
+    const currentPhase = phases[phaseIndex].toLowerCase();
+
+    if (isCurrentPhaseBan()) {
+      if (currentPhase.includes('team')) {
+        return stagedTeamHeroIcon === null;
+      }
+
+      else if (currentPhase.includes('enemy')) {
+        return stagedEnemyHeroIcon === null;
+      }
+    }
+
+    else if (isCurrentPhasePick()) {
+      if (currentPhase.includes('team')) {
+        return stagedTeamHeroIcon === null;
+      }
+
+      else if (currentPhase.includes('enemy')) {
+        return stagedEnemyHeroIcon === null;
+      }
+    }
+
+    return false;
+  }
+
+  // Next and Back Buttons
+  const handleNext = () => {
+    const currentPhase = phases[phaseIndex].toLowerCase();
+
+    // Update the ban indexand add the BannedHeroIds
+    if (isCurrentPhaseBan()) {
+      if (currentPhase.includes('team') && teamBanIndex < 5 && stagedTeamHeroIcon) {
+        const updated = [...teamBans];
+        updated[teamBanIndex] = stagedTeamHeroIcon;
+        setTeamBans(updated);
+
+        const bannedHero = heroes.find(h => h.icon === stagedTeamHeroIcon);
+        if (bannedHero && !teamBannedHeroIds.includes(bannedHero.heroId)) {
+          setTeamBannedHeroIds(prev => [...prev, bannedHero.heroId]);
+        }
+
+        setStagedTeamHeroIcon(null);
+        setTeamBanIndex(prev => prev + 1);
+      }
+
+      else if (currentPhase.includes('enemy') && enemyBanIndex < 5 && stagedEnemyHeroIcon) {
+        const updated = [...enemyBans];
+        updated[enemyBanIndex] = stagedEnemyHeroIcon;
+        setEnemyBans(updated);
+
+        const bannedHero = heroes.find(h => h.icon === stagedEnemyHeroIcon);
+        if (bannedHero && !enemyBannedHeroIds.includes(bannedHero.heroId)) {
+          setEnemyBannedHeroIds(prev => [...prev, bannedHero.heroId]);
+        }
+
+        setStagedEnemyHeroIcon(null);
+        setEnemyBanIndex(prev => prev + 1);
+      }
+    }
+
+    else if (isCurrentPhasePick()) {
+      if (currentPhase.includes('team') && teamPickIndex < 5 && stagedTeamHeroIcon) {
+        const updated = [...teamPicks];
+        updated[teamPickIndex] = stagedTeamHeroIcon;
+        setTeamPicks(updated);
+
+        const pickedHero = heroes.find(h => h.icon === stagedTeamHeroIcon);
+        if (pickedHero && !teamPickedHeroIds.includes(pickedHero.heroId)) {
+          setTeamPickedHeroIds(prev => [...prev, pickedHero.heroId]);
+        }
+
+        setStagedTeamHeroIcon(null);
+        setTeamPickIndex(prev => prev + 1);
+      }
+
+      else if (currentPhase.includes('enemy') && enemyPickIndex < 5 && stagedEnemyHeroIcon) {
+        const updated = [...enemyPicks];
+        updated[enemyPickIndex] = stagedEnemyHeroIcon;
+        setEnemyPicks(updated);
+
+        const pickedHero = heroes.find(h => h.icon === stagedEnemyHeroIcon);
+        if (pickedHero && !enemyPickedHeroIds.includes(pickedHero.heroId)) {
+          setEnemyPickedHeroIds(prev => [...prev, pickedHero.heroId]);
+        }
+
+        setStagedEnemyHeroIcon(null);
+        setEnemyPickIndex(prev => prev + 1);
+      }
+    }
+
+    // Updating phase
+    if (phaseIndex < phases.length - 1) {
+      setPhaseIndex(phaseIndex + 1);
+    }
+  };  
+  const handleBack = () => {
+    if (phaseIndex === 0) return; 
+    const newPhaseIndex = phaseIndex - 1;
+    const currentPhase = phases[newPhaseIndex].toLowerCase();
+
+    // Revert the ban index and unban the hero
+    if (phases[newPhaseIndex].includes('banning')) {
+      
+      // Remove the preview
+      setStagedTeamHeroIcon(null);
+      setStagedEnemyHeroIcon(null);
+
+      if (currentPhase.includes('team') && teamBanIndex > 0) {
+        const newIndex = teamBanIndex - 1;
+        const heroIcon = teamBans[newIndex];
+        const bannedHero = heroes.find(h => h.icon === heroIcon);
+        if (bannedHero && teamBannedHeroIds.includes(bannedHero.heroId)) {
+          setTeamBannedHeroIds(prev => prev.filter(id => id !== bannedHero.heroId)); 
+        }
+
+        const updated = [...teamBans];
+        updated[newIndex] = `/ban-${newIndex + 1}.png`;
+        setTeamBans(updated);
+        setTeamBanIndex(newIndex);
+      }
+
+      else if (currentPhase.includes('enemy') && enemyBanIndex > 0) {
+        const newIndex = enemyBanIndex - 1;
+        const heroIcon = enemyBans[newIndex];
+        const bannedHero = heroes.find(h => h.icon === heroIcon);
+
+        if (bannedHero && enemyBannedHeroIds.includes(bannedHero.heroId)) {
+          setEnemyBannedHeroIds(prev => prev.filter(id => id !== bannedHero.heroId));
+        }
+
+        const updated = [...enemyBans];
+        updated[newIndex] = `/ban-${newIndex + 6}.png`;
+        setEnemyBans(updated);
+        setEnemyBanIndex(newIndex);
+      }
+    }
+
+    else if (phases[newPhaseIndex].toLowerCase().includes('picking')) {
+      setStagedTeamHeroIcon(null);
+      setStagedEnemyHeroIcon(null);
+
+      if (currentPhase.includes('team') && teamPickIndex > 0) {
+        const newIndex = teamPickIndex - 1;
+        const heroIcon = teamPicks[newIndex];
+        const pickedHero = heroes.find(h => h.icon === heroIcon);
+
+        if (pickedHero && teamPickedHeroIds.includes(pickedHero.heroId)) {
+          setTeamPickedHeroIds(prev => prev.filter(id => id !== pickedHero.heroId));
+        }
+
+        const updated = [...teamPicks];
+        updated[newIndex] = `/team-${newIndex + 1}.png`;
+        setTeamPicks(updated);
+        setTeamPickIndex(newIndex);
+      }
+
+      else if (currentPhase.includes('enemy') && enemyPickIndex > 0) {
+        const newIndex = enemyPickIndex - 1;
+        const heroIcon = enemyPicks[newIndex];
+        const pickedHero = heroes.find(h => h.icon === heroIcon);
+
+        if (pickedHero && enemyPickedHeroIds.includes(pickedHero.heroId)) {
+          setEnemyPickedHeroIds(prev => prev.filter(id => id !== pickedHero.heroId));
+        }
+
+        const updated = [...enemyPicks];
+        updated[newIndex] = `/enemy-${newIndex + 1}.png`;
+        setEnemyPicks(updated);
+        setEnemyPickIndex(newIndex);
+      }
+    }
+
+    setPhaseIndex(newPhaseIndex);
+  }
+
+  // Pick Section
+  const [teamPicks, setTeamPicks] = useState<string[]>([
+    '/team-1.png', 
+    '/team-2.png', 
+    '/team-3.png', 
+    '/team-4.png', 
+    '/team-5.png',
+  ]);
+  const [enemyPicks, setEnemyPicks] = useState<string[]>([
+    '/enemy-1.png', 
+    '/enemy-2.png', 
+    '/enemy-3.png', 
+    '/enemy-4.png', 
+    '/enemy-5.png',
+  ]);
+  const [teamPickIndex, setTeamPickIndex] = useState(0);
+  const [enemyPickIndex, setEnemyPickIndex] = useState(0);
+  const [teamPickedHeroIds, setTeamPickedHeroIds] = useState<string[]>([]);
+  const [enemyPickedHeroIds, setEnemyPickedHeroIds] = useState<string[]>([]);
+  
+  function isCurrentPhasePick(): boolean {
+    return phases[phaseIndex].includes('picking');
+  }
+
+  // Ban Section
+  const [teamBans, setTeamBans] = useState<string[]>([
+    '/ban-1.png', 
+    '/ban-2.png', 
+    '/ban-3.png', 
+    '/ban-4.png', 
+    '/ban-5.png',
+  ]);
+  const [enemyBans, setEnemyBans] = useState<string[]>([
+    '/ban-6.png', 
+    '/ban-7.png', 
+    '/ban-8.png', 
+    '/ban-9.png', 
+    '/ban-10.png',
+  ]);
+  const [teamBanIndex, setTeamBanIndex] = useState(0);
+  const [enemyBanIndex, setEnemyBanIndex] = useState(0);
+  const [stagedTeamHeroIcon, setStagedTeamHeroIcon] = useState<string | null>(null);
+  const [stagedEnemyHeroIcon, setStagedEnemyHeroIcon] = useState<string | null>(null);
+  const [teamBannedHeroIds, setTeamBannedHeroIds] = useState<string[]>([]);
+  const [enemyBannedHeroIds, setEnemyBannedHeroIds] = useState<string[]>([]);
+
+  function isCurrentPhaseBan(): boolean {
+    return phases[phaseIndex].includes('banning');
+  }
+
+  // Hero Section
+  const [heroes, setHeroes] = useState<any[]>([]);
+  useEffect(() => {
+    async function fetchHeroes() {
+      try {
+        const res = await fetch('/api/hero')
+        const json = await res.json();
+        setHeroes(json.heros);
+      }
+
+      catch (err) {
+        console.log("Failed to fetch heros: ", err);
+      }
+    }
+
+    fetchHeroes();
+  }, []);
+
+  const handleHeroClick = (hero: any) => {
+    if (!(isCurrentPhaseBan() || isCurrentPhasePick())) return;
+
+    const currentPhase = phases[phaseIndex].toLowerCase();
+
+    if (currentPhase.includes('team')) {
+      if (isCurrentPhaseBan() && teamBanIndex < 5) {
+        setStagedTeamHeroIcon(hero.icon);
+      }
+
+      else if (isCurrentPhasePick() && teamPickIndex < 5) {
+        setStagedTeamHeroIcon(hero.icon);
+      }
+    }
+
+    else if (currentPhase.includes('enemy')) {
+      if (isCurrentPhaseBan() && enemyBanIndex < 5) {
+        setStagedEnemyHeroIcon(hero.icon);
+      }
+
+      else if (isCurrentPhasePick() && enemyPickIndex < 5) {
+        setStagedEnemyHeroIcon(hero.icon);
+      }
+    }
+  };
 
   return (
     <div className="container-fluid py-4">
@@ -76,16 +374,38 @@ export default function DraftPage() {
 
         {/* Team Bans Component */}
         <div className="col-5 d-flex justify-content-start">
-          {teamBans.map((src, i) => (
-            <img key={i} src={src} alt={`Team Ban ${i}`} className="img-thumbnail mx-1" style={{ width: 50, height: 50 }} />
-          ))}
+          {teamBans.map((src, i) => {
+            const isPreview = i === teamBanIndex && stagedTeamHeroIcon;
+            const isLockedIn = heroes.some(h => h.icon === src && teamBannedHeroIds.includes(h.heroId));
+
+            return (
+              <img 
+                key={i} 
+                src={isPreview ? stagedTeamHeroIcon! : src} 
+                alt={`Team Ban ${i}`} 
+                className={`img-thumbnail mx-1 ${isPreview ? styles.previewBan : isLockedIn ? styles.lockedBan : ''}`}
+                style={{ width: 50, height: 50 }} 
+              />
+            );
+          })}
         </div>
         
         {/* Enemy Bans Component */}
         <div className="col-5 d-flex justify-content-end">
-          {enemyBans.map((src, i) => (
-            <img key={i} src={src} alt={`Enemy Ban ${i}`} className="img-thumbnail mx-1" style={{ width: 50, height: 50 }} />
-          ))}
+          {enemyBans.map((src, i) => {
+            const isPreview = i === enemyBanIndex && stagedEnemyHeroIcon;
+            const isLockedIn = heroes.some(h => h.icon === src && enemyBannedHeroIds.includes(h.heroId));
+
+            return (
+              <img 
+                key={i} 
+                src={isPreview ? stagedEnemyHeroIcon! : src} 
+                alt={`Enemy Ban ${i}`} 
+                className={`img-thumbnail mx-1 ${isPreview ? styles.previewBan : isLockedIn ? styles.lockedBan : ''}`}
+                style={{ width: 50, height: 50 }} 
+              />
+            );
+          })}
         </div>
 
       </div>
@@ -98,21 +418,41 @@ export default function DraftPage() {
           {phases[phaseIndex]} — <span className="text-capitalize">{teamColor} team | draftid {draftId}</span>
         </h3>
 
-
         {/* Left Sidebar: Team Picks */}
         <div className="col-2 border-end text-white">
           <h5 className='text-dark'>Team</h5>
-          {[...Array(5)].map((_, i) => (
+          {[...Array(5)].map((_, i) => {
 
-            /* Team Display Component */
-            <div key={i} className="mb-3 text-center">
+            const isPreview = isCurrentPhasePick() && phases[phaseIndex].toLowerCase().includes('team') && i === teamPickIndex && stagedTeamHeroIcon
+            const isLockedIn = heroes.some(h => h.icon === teamPicks[i] && teamPickedHeroIds.includes(h.heroId));
+
+            return (
+              /* Team Display Component */
+              <div key={i} className="mb-3 text-center">
               <div className="bg-dark p-2 rounded">
-                <img src="/avatar-placeholder.png" alt={`Team ${i + 1}`} className="img-fluid rounded mb-1" />
+                <img
+                  src={ isCurrentPhasePick() && 
+                    phases[phaseIndex].toLowerCase().includes('team') &&
+                    i === teamPickIndex && 
+                    stagedTeamHeroIcon 
+                      ? stagedTeamHeroIcon 
+                      : teamPicks[i]
+                  }
+                  alt={`Team ${i + 1}`} 
+                  className={`img-fluid mb-1 ${isPreview ? styles.previewPick : isLockedIn ? styles.lockedPick : ''}`}
+                  style={{
+                    width: '4rem',
+                    height: '4rem',
+                    objectFit: 'cover',
+                    borderRadius: '0.5rem'
+                  }}
+                />
                 <p className="mb-0">Team {i + 1}</p>
               </div>
             </div>
+            );
 
-          ))}
+          })}
         </div>
 
         {/* Center Panel */}
@@ -157,6 +497,12 @@ export default function DraftPage() {
           <div className={styles.heroScrollContainer}>
             <div className='d-flex flex-wrap'>
               {heroes.filter(hero => {
+                if (
+                  teamBannedHeroIds.includes(hero.heroId) || 
+                  enemyBannedHeroIds.includes(hero.heroId) || 
+                  teamPickedHeroIds.includes(hero.heroId) || 
+                  enemyPickedHeroIds.includes(hero.heroId)
+                ) return false;
                 if (selectedFilter === 'All' || selectedFilter === 'All Lanes') return true;
                 if (filterMode === 'role') {
                   return hero.roles?.some((role: string) => 
@@ -180,6 +526,7 @@ export default function DraftPage() {
                     src={hero.icon} 
                     className={styles.heroIcon}
                     alt={hero.heroName}
+                    onClick={() => handleHeroClick(hero)}
                   />
                   <p className="small">{hero.heroName}</p>
                 </div>
@@ -191,25 +538,46 @@ export default function DraftPage() {
 
           {/* Back + Next Buttons */}
           <div className="text-center mt-3">
-            <button className="btn btn-secondary me-3 px-4" onClick={handleBack}>Back</button>
-            <button className="btn btn-warning px-4" onClick={handleNext}>Next</button>
+            <button className="btn btn-secondary me-3 px-4" onClick={handleBack} disabled={phaseIndex === 0}>Back</button>
+            <button className="btn btn-warning px-4" onClick={handleNext} disabled={isNextDisabled()}>Next</button>
           </div>
         </div>
 
         {/* Right Sidebar: Enemy Picks */}
         <div className="col-2 border-start text-white">
           <h5 className='text-dark'>Enemy</h5>
-          {[...Array(5)].map((_, i) => (
+          {[...Array(5)].map((_, i) => {
 
-            /* Enemy Display Component */
-            <div key={i} className="mb-3 text-center">
-              <div className="bg-dark p-2 rounded">
-                <img src="/enemy-placeholder.png" alt={`Enemy ${i + 1}`} className="img-fluid rounded mb-1" />
-                <p className="mb-0">Enemy {i + 1}</p>
+            const isPreview = isCurrentPhasePick() && phases[phaseIndex].toLowerCase().includes('enemy') && i === enemyPickIndex && stagedEnemyHeroIcon;
+            const isLockedIn = heroes.some(h => h.icon === enemyPicks[i] && enemyPickedHeroIds.includes(h.heroId));
+
+            return (
+              /* Enemy Display Component */
+              <div key={i} className="mb-3 text-center">
+                <div className="bg-dark p-2 rounded">
+                  <img
+                    src={ isCurrentPhasePick() && 
+                      phases[phaseIndex].toLowerCase().includes('enemy') &&
+                      i === enemyPickIndex &&
+                      stagedEnemyHeroIcon
+                        ? stagedEnemyHeroIcon 
+                        : enemyPicks[i]
+                    }
+                    alt={`Enemy ${i + 1}`} 
+                    className={`img-fluid mb-1 ${isPreview ? styles.previewPick : isLockedIn ? styles.lockedPick : ''}`}
+                    style={{
+                      width: '4rem',
+                      height: '4rem',
+                      objectFit: 'cover',
+                      borderRadius: '0.5rem'
+                    }} 
+                  />
+                  <p className="mb-0">Enemy {i + 1}</p>
+                </div>
               </div>
-            </div>
+            );
 
-          ))}
+          })}
         </div>
 
       </div>
