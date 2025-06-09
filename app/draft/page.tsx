@@ -131,17 +131,24 @@ export default function DraftPage() {
       }
     }
 
-    setPhaseIndex((phaseIndex + 1) % phases.length);
+    // Updating phase
+    if (phaseIndex < phases.length - 1) {
+      setPhaseIndex(phaseIndex + 1);
+    }
   };  
   const handleBack = () => {
-    const newPhaseIndex = (phaseIndex - 1 + phases.length) % phases.length;
+    if (phaseIndex === 0) return; 
+    const newPhaseIndex = phaseIndex - 1;
     const currentPhase = phases[newPhaseIndex].toLowerCase();
 
     // Revert the ban index and unban the hero
     if (phases[newPhaseIndex].includes('banning')) {
-      if (currentPhase.includes('team') && teamBanIndex > 0) {
-        setStagedTeamHeroIcon(null);
+      
+      // Remove the preview
+      setStagedTeamHeroIcon(null);
+      setStagedEnemyHeroIcon(null);
 
+      if (currentPhase.includes('team') && teamBanIndex > 0) {
         const newIndex = teamBanIndex - 1;
         const heroIcon = teamBans[newIndex];
         const bannedHero = heroes.find(h => h.icon === heroIcon);
@@ -156,8 +163,6 @@ export default function DraftPage() {
       }
 
       else if (currentPhase.includes('enemy') && enemyBanIndex > 0) {
-        setStagedEnemyHeroIcon(null);
-
         const newIndex = enemyBanIndex - 1;
         const heroIcon = enemyBans[newIndex];
         const bannedHero = heroes.find(h => h.icon === heroIcon);
@@ -379,7 +384,7 @@ export default function DraftPage() {
 
           {/* Back + Next Buttons */}
           <div className="text-center mt-3">
-            <button className="btn btn-secondary me-3 px-4" onClick={handleBack}>Back</button>
+            <button className="btn btn-secondary me-3 px-4" onClick={handleBack} disabled={phaseIndex === 0}>Back</button>
             <button className="btn btn-warning px-4" onClick={handleNext}>Next</button>
           </div>
         </div>
