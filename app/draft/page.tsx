@@ -198,6 +198,32 @@ export default function DraftPage() {
     setPhaseIndex(newPhaseIndex);
   }
 
+  // Pick Section
+  const [teamPicks, setTeamPicks] = useState<string[]>([
+    '/team-1.png', 
+    '/team-2.png', 
+    '/team-3.png', 
+    '/team-4.png', 
+    '/team-5.png',
+  ]);
+  const [enemyPicks, setEnemyPicks] = useState<string[]>([
+    '/enemy-1.png', 
+    '/enemy-2.png', 
+    '/enemy-3.png', 
+    '/enemy-4.png', 
+    '/enemy-5.png',
+  ]);
+  const [teamPickIndex, setTeamPickIndex] = useState(0);
+  const [enemyPickIndex, setEnemyPickIndex] = useState(0);
+  const [stagedTeamPickIcon, setStagedTeamPickIcon] = useState<string | null>(null);
+  const [stagedEnemyPickIcon, setStagedEnemyPickIcon] = useState<string | null>(null);
+  const [teamPickedHeroIds, setTeamPickedHeroIds] = useState<string[]>([]);
+  const [enemyPickedHeroIds, setEnemyPickedHeroIds] = useState<string[]>([]);
+  
+  function isCurrentPhasePick(): boolean {
+    return phases[phaseIndex].includes('picking');
+  }
+
   // Ban Section
   const [teamBans, setTeamBans] = useState<string[]>([
     '/ban-1.png', 
