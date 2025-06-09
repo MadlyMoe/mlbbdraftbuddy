@@ -1,6 +1,7 @@
 # ConsoleDraftBuddy.py
 
 from Init import get_heroes_list
+from WeighingFunction import calculate_score
 from HeroSearch import hero_search
 
 hero_list = get_heroes_list()
@@ -64,6 +65,12 @@ class DraftBuddyConsole:
 
         pick_slots = [0, 0]  # Track next available pick slot for each team
 
+        result = calculate_score(self.heroes, first_team)
+        recommendations = result[:5]
+        print("Top 5 recommendations:")
+        for rec in recommendations:
+            print(rec)
+            
         for team, num_picks in pick_order:
             for _ in range(num_picks):
                 self.display()
@@ -74,6 +81,12 @@ class DraftBuddyConsole:
                     pick_slots[team] += 1
                 if hero in self.heroes:
                     self.heroes.remove(hero)
+                result = calculate_score(self.heroes, team)
+                recommendations = result[:5]
+                print("Top 5 recommendations:")
+                for rec in recommendations:
+                    print(rec)
+                
 
     def run(self):
         self.ban_phase()
