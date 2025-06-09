@@ -158,6 +158,36 @@ export default function DraftPage() {
       }
     }
 
+    else if (isCurrentPhasePick()) {
+      if (currentPhase.includes('team') && teamPickIndex < 5 && stagedTeamHeroIcon) {
+        const updated = [...teamPicks];
+        updated[teamPickIndex] = stagedTeamHeroIcon;
+        setTeamPicks(updated);
+
+        const pickedHero = heroes.find(h => h.icon === stagedTeamHeroIcon);
+        if (pickedHero && !teamPickedHeroIds.includes(pickedHero.heroId)) {
+          setTeamPickedHeroIds(prev => [...prev, pickedHero.heroId]);
+        }
+
+        setStagedTeamHeroIcon(null);
+        setTeamPickIndex(prev => prev + 1);
+      }
+
+      else if (currentPhase.includes('enemy') && enemyPickIndex < 5 && stagedEnemyHeroIcon) {
+        const updated = [...enemyPicks];
+        updated[enemyPickIndex] = stagedEnemyHeroIcon;
+        setEnemyPicks(updated);
+
+        const pickedHero = heroes.find(h => h.icon === stagedEnemyHeroIcon);
+        if (pickedHero && !enemyPickedHeroIds.includes(pickedHero.heroId)) {
+          setEnemyPickedHeroIds(prev => [...prev, pickedHero.heroId]);
+        }
+
+        setStagedEnemyHeroIcon(null);
+        setEnemyPickIndex(prev => prev + 1);
+      }
+    }
+
     // Updating phase
     if (phaseIndex < phases.length - 1) {
       setPhaseIndex(phaseIndex + 1);
@@ -202,6 +232,41 @@ export default function DraftPage() {
         updated[newIndex] = `/ban-${newIndex + 6}.png`;
         setEnemyBans(updated);
         setEnemyBanIndex(newIndex);
+      }
+    }
+
+    else if (phases[newPhaseIndex].includes('picking')) {
+      setStagedTeamHeroIcon(null);
+      setStagedEnemyHeroIcon(null);
+
+      if (currentPhase.includes('team') && teamPickIndex > 0) {
+        const newIndex = teamPickIndex - 1;
+        const heroIcon = teamPicks[newIndex];
+        const pickedHero = heroes.find(h => h.icon === heroIcon);
+
+        if (pickedHero && teamPickedHeroIds.includes(pickedHero.heroId)) {
+          setTeamPickedHeroIds(prev => prev.filter(id => id !== pickedHero.heroId));
+        }
+
+        const updated = [...teamPicks];
+        updated[newIndex] = `/team-${newIndex + 1}.png`;
+        setTeamPicks(updated);
+        setTeamPickIndex(newIndex);
+      }
+
+      else if (currentPhase.includes('enemy') && enemyPickIndex > 0) {
+        const newIndex = enemyBanIndex - 1;
+        const heroIcon = enemyPicks[newIndex];
+        const pickedHero = heroes.find(h => h.icon === heroIcon);
+
+        if (pickedHero && enemyPickedHeroIds.includes(pickedHero.heroId)) {
+          setEnemyBannedHeroIds(prev => prev.filter(id => id !== pickedHero.heroId));
+        }
+
+        const updated = [...enemyPicks];
+        updated[newIndex] = `/enemy-${newIndex + 1}.png`;
+        setEnemyPicks(updated);
+        setEnemyPickIndex(newIndex);
       }
     }
 
