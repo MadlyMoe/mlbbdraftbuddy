@@ -367,6 +367,18 @@ export default function DraftPage() {
     }
   };
 
+  // RecommendationModal Section
+  const [showRecommendationModal, setShowRecommendationModal] = useState(true);
+  
+  // TODO: Check if the recommendation gives heroid or string
+  const [recommendations, setRecommendations] = useState<Record<string, any[]>>({});
+
+  // TODO: Additional Logic
+
+  function closeModal() {
+    setShowRecommendationModal(false);
+  }
+
   return (
     <div className="container-fluid py-4">
       {/* Top Ban Pools */}
@@ -579,8 +591,21 @@ export default function DraftPage() {
 
           })}
         </div>
-
       </div>
+
+      {/* Modal Recommendation */}
+      {showRecommendationModal && (
+        <div className={styles.modalBackdrop}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <h5>Recommendation ({phases[phaseIndex]})</h5>
+              <button className={styles.modalCloseBtn} onClick={closeModal}>&times;</button>
+            </div>
+
+            {Object.entries(recommendations )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
