@@ -602,7 +602,23 @@ export default function DraftPage() {
               <button className={styles.modalCloseBtn} onClick={closeModal}>&times;</button>
             </div>
 
-            {Object.entries(recommendations )}
+            {Object.entries(recommendations).map(([label, heroes]) => (
+              <div key={label} className='mb-4'>
+                <h6 className='fw-bold'>{label}</h6>
+                <div className='d-flex flex-wrap'>
+                  {heroes.map(hero => (
+                    <div key={hero.heroId} className={styles.heroCol}>
+                      <img 
+                        src={hero.icon}
+                        className={styles.heroIcon}
+                        alt={hero.heroName}
+                      />
+                      <p className="small text-center">{hero.heroName}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
