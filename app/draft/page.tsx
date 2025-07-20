@@ -411,7 +411,7 @@ export default function DraftPage() {
       // Match with existing hero ids
       // TODO: Choose a typing for id
       const mappedHeroes = suggestionHeroIds
-        .map(id => heroes.find(h => h.heroId.toString() === id))
+        .map((id:any) => heroes.find(h => h.heroId.toString() === id))
         .filter(Boolean)
       
       setRecommendations({
