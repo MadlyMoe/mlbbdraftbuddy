@@ -55,6 +55,7 @@ export async function POST(req: Request) {
     // Start of Proxy
     const body = await req.json();
 
+    // TODO: POST (Message to test Data)
     console.log("Received POST /api/draft/suggestions data:", body);
     
     const mockResponse = {
