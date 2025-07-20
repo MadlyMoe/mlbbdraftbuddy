@@ -4,6 +4,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styles from './DraftPage.module.css';
 import React, { use, useState, useEffect } from 'react';
+import next from 'next';
+import { parseUseCacheCacheStore } from 'next/dist/server/resume-data-cache/cache-store';
 
 export default function DraftPage() {
   // Passed states
@@ -188,9 +190,9 @@ export default function DraftPage() {
       }
     }
 
-    // Updating phase
+    // Updating phase and fetchRecommendations
     if (phaseIndex < phases.length - 1) {
-      setPhaseIndex(phaseIndex + 1);
+      setPhaseIndex(prev => prev + 1);
     }
   };  
   const handleBack = () => {
@@ -368,12 +370,64 @@ export default function DraftPage() {
   };
 
   // RecommendationModal Section
-  const [showRecommendationModal, setShowRecommendationModal] = useState(true);
-  
-  // TODO: Check if the recommendation gives heroid or string
+  const [showRecommendationModal, setShowRecommendationModal] = useState(true);  
   const [recommendations, setRecommendations] = useState<Record<string, any[]>>({});
+  
+  // on First Render 
+  useEffect(() => {
+    if (heroes.length && draftId) {
+      fetchRecommendations();
+    }
+  }, [heroes, draftId]);
 
-  // TODO: Additional Logic
+  // On Update Phase
+  useEffect(() => {
+    if (heroes.length && draftId) {
+      fetchRecommendations(phaseIndex);
+    }
+  }, [phaseIndex, heroes, draftId])
+
+  async function fetchRecommendations(nextPhaseIndex = phaseIndex) {
+    console.log("test");
+    console.log(draftId)
+    if (!draftId) return;
+
+    try {
+      console.log("In Try");
+      // TODO: Future plan: /api/draft/{id}/suggestion
+      const res = await fetch(`/api/draft/suggestions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          allyBans: teamBannedHeroIds,
+          allyPicks: teamPickedHeroIds,
+          enemyBans: enemyBannedHeroIds,
+          enemyPicks: enemyPickedHeroIds,
+        }),
+      });
+
+      const data = await res.json();
+      console.log(data)
+
+      const suggestionHeroIds = data.suggestions.map((s: any) => s.heroId.toString());
+
+      // Match with existing hero ids
+      // TODO: Choose a typing for id
+      const mappedHeroes = suggestionHeroIds
+        .map(id => heroes.find(h => h.heroId.toString() === id))
+        .filter(Boolean)
+      
+      setRecommendations({
+        [phases[nextPhaseIndex]] : mappedHeroes
+      });
+
+      setShowRecommendationModal(true);
+    } catch(err) {
+      console.error("Failed to fetch recommendations:", err);
+    }
+  }
 
   function closeModal() {
     setShowRecommendationModal(false);
@@ -598,7 +652,7 @@ export default function DraftPage() {
         <div className={styles.modalBackdrop}>
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              <h5>Recommendation ({phases[phaseIndex]})</h5>
+              <h5>Recommendation</h5>
               <button className={styles.modalCloseBtn} onClick={closeModal}>&times;</button>
             </div>
 

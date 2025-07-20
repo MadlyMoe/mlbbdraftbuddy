@@ -8,7 +8,6 @@
 import { getSuggestions } from "@/lib/suggestions";
 
 export async function POST(req: Request) {
-
     /*
     *   Returns a suggestion object based on the current draft
     *   
@@ -46,8 +45,40 @@ export async function POST(req: Request) {
     * 
     */
 
+    /* TODO: Uncomment because right now using Proxy 
     const { allyPicks, enemyPicks } = await req.json();
     const suggestions = await getSuggestions(allyPicks, enemyPicks);
 
     return Response.json({ suggestions });
+    */
+
+    // Start of Proxy
+    const body = await req.json();
+
+    console.log("Received POST /api/draft/suggestions data:", body);
+    
+    const mockResponse = {
+        draft: {
+            allyBans: [1, 6],
+            allyPicks: [1, 6],
+            enemyBans: [1, 6],
+            enemyPicks: [1, 6]
+        },
+        suggestions: [
+            {
+                heroId: "1",
+                heroName: "Miya",
+                winrate: 0.12,
+                confidence: 0.99
+            },
+            {
+                heroId: "128",
+                heroName: "Kalea",
+                winrate: 0.88,
+                confidence: 0.01
+            }
+        ]
+    };
+
+    return Response.json(mockResponse)
 }
