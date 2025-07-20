@@ -388,12 +388,9 @@ export default function DraftPage() {
   }, [phaseIndex, heroes, draftId])
 
   async function fetchRecommendations(nextPhaseIndex = phaseIndex) {
-    console.log("test");
-    console.log(draftId)
     if (!draftId) return;
 
     try {
-      console.log("In Try");
       // TODO: Future plan: /api/draft/{id}/suggestion
       const res = await fetch(`/api/draft/suggestions`, {
         method: 'POST',
@@ -409,8 +406,6 @@ export default function DraftPage() {
       });
 
       const data = await res.json();
-      console.log(data)
-
       const suggestionHeroIds = data.suggestions.map((s: any) => s.heroId.toString());
 
       // Match with existing hero ids
