@@ -1,43 +1,86 @@
 import axios from 'axios';
 
+import { getHeroByIdExtended } from "@/lib/hero-fetcher";
+
 // Weighing Functions
 
+//const apiUrl = "https://mlbb-stats.ridwaanhall.com"
+const apiUrl = "http://127.0.0.1:8000"
 
 // We could probably cache this for like an hour to give their api a break
-export async function heroList() {
+export async function heroTotal() {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://mlbb-stats.ridwaanhall.com/api/hero-list/'
+        url: apiUrl + '/api/hero-position/'
     };
 
     const response = await axios.request(config);
-    return response.data;
+    return response.data.data.total;
 }
 
+export async function weighingFunction(heroId: number, allyPicks: number[], enemyPicks: number[]) {
 
-export async function getSuggestions(allyPicks: string[], enemyPicks: string[]) {
+  const hero = await getHeroByIdExtended(heroId)
 
-    // Get hero list
-    const list = await heroList();
+  if (!hero || !Array.isArray(hero.counters) || !Array.isArray(hero.counteredBy) || !Array.isArray(hero.synergyWith)) {
+    console.warn(`Skipping heroId ${heroId} due to missing or invalid data.`);
+    console.log(hero)
+    return 0;
+  }
 
-    // Weigh it based on picks
+  // Individual
+  const individualScore = (0.5*hero.winRate) + (1*hero.banRate) + (0.25*hero.pickRate)
 
-    // This is just dummy data/dummy structure
-    const suggestions = [
-        {
-            "heroId": "1",
-            "heroName": "Miya",
-            "winRate": "1",
-            "confidence": "0.99",
-        },
-        {
-            "heroId": "2",
-            "heroName": "Layla",
-            "winRate": "0.67",
-            "confidence": "0.99",
-        },
-    ];
+  // Enemy draft
 
-    return list;
+  const strongAgainst = hero.counters.filter(num => enemyPicks.includes(num));
+  const weakAgainst = hero.counteredBy.filter(num => enemyPicks.includes(num));
+
+  const enemyDraftScore = (0.3*(strongAgainst.length/5)) + (-0.3*(weakAgainst.length/5))
+
+  // Team draft
+  const synergyWith = hero.synergyWith.filter(num => allyPicks.includes(num));
+  const isLaneOpen = false;
+
+  const teamDraftScore = (0.3*(synergyWith.length/5)) + (0.2*isLaneOpen);
+
+  return (individualScore + enemyDraftScore + teamDraftScore)/3; // To make it out of 100
+
+
+
+}
+
+export async function getSuggestions(allyPicks: number[], enemyPicks: number[]) {
+
+    // Get hero total heros
+    const total = await heroTotal();
+
+    const allSuggestions = [];
+
+    for(let heroId = 1; heroId < total; heroId++){
+      if (allyPicks.includes(heroId) || enemyPicks.includes(heroId))
+        continue;
+
+      const heroScore = await weighingFunction(heroId, allyPicks, enemyPicks);
+
+      const heroDetails = getHeroByIdExtended(heroId);
+
+      const suggestion = {
+        heroId: String(heroId),
+        heroName: heroDetails.heroName,
+        winrate: heroDetails.winRate,
+        confidence: heroScore,
+      }
+
+      allSuggestions.push(suggestion);
+
+    }
+
+    allSuggestions.sort((a, b) => b.confidence - a.confidence);
+
+    const top3 = allSuggestions.slice(0,3);
+
+
+    return top3;
 }

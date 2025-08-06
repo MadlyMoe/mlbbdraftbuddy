@@ -45,41 +45,19 @@ export async function POST(req: Request) {
     * 
     */
 
-    /* TODO: Uncomment because right now using Proxy 
-    const { allyPicks, enemyPicks } = await req.json();
-    const suggestions = await getSuggestions(allyPicks, enemyPicks);
+    const { allyBans, allyPicks, enemyBans, enemyPicks } = await req.json();
 
-    return Response.json({ suggestions });
-    */
+    const top3 = await getSuggestions(allyPicks, enemyPicks); // TODO: Add bans to suggestions
 
-    // Start of Proxy
-    const body = await req.json();
-
-    // TODO: POST (Message to test Data)
-    console.log("Received POST /api/draft/suggestions data:", body);
-    
-    const mockResponse = {
-        draft: {
-            allyBans: [1, 6],
-            allyPicks: [1, 6],
-            enemyBans: [1, 6],
-            enemyPicks: [1, 6]
-        },
-        suggestions: [
-            {
-                heroId: "1",
-                heroName: "Miya",
-                winrate: 0.12,
-                confidence: 0.99
-            },
-            {
-                heroId: "128",
-                heroName: "Kalea",
-                winrate: 0.88,
-                confidence: 0.01
-            }
-        ]
+    const response = {
+      draft: {
+        allyBans: allyBans,
+        allyPicks: allyPicks,
+        enemyBans: enemyBans,
+        enemyPicks: enemyPicks
+      },
+      suggestions: top3
     };
 
-    return Response.json(mockResponse)
+    return Response.json(response);
 }

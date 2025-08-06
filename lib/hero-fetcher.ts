@@ -2,23 +2,19 @@ import axios from 'axios';
 
 const heroCache = new Map<string, any>();
 
-export async function numberOfHeros() {
-    let config = {
-        method: 'get',
-        maxBodyLength: Infinity,
-        url: 'https://mlbb-stats.ridwaanhall.com/api/hero-list/'
-    };
 
-    const response = await axios.request(config);
-    
-    return Object.keys(response.data).length;
+//const apiUrl = "https://mlbb-stats.ridwaanhall.com"
+const apiUrl = "http://127.0.0.1:8000"
+
+export async function numberOfHeros() {
+    return 400;
 }
 
 export async function heroPosition(heros: number | null, lane: string | null) {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://mlbb-stats.ridwaanhall.com/api/hero-position/',
+        url: apiUrl + '/api/hero-position',
         params: { 
             size: heros,
             lane: lane,
@@ -50,7 +46,7 @@ export async function heroRank(heros: number) {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://mlbb-stats.ridwaanhall.com/api/hero-rank/',
+        url: apiUrl + '/api/hero-rank',
         params: { size: heros }
     };
 
@@ -142,7 +138,7 @@ export async function heroPositionExtended(heros: number | null, lane: string | 
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://mlbb-stats.ridwaanhall.com/api/hero-position/',
+        url: apiUrl + '/api/hero-position',
         params: { 
             size: heros,
             lane: lane,
@@ -179,7 +175,7 @@ export async function heroRankExtended(heros: number) {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://mlbb-stats.ridwaanhall.com/api/hero-rank/',
+        url: apiUrl + '/api/hero-rank',
         params: { size: heros }
     };
 
