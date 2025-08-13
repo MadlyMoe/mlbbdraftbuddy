@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
     const { allyBans, allyPicks, enemyBans, enemyPicks } = await req.json();
 
-    const top3 = await getSuggestions(allyPicks, enemyPicks); // TODO: Add bans to suggestions
+    const top3 = await getSuggestions(allyPicks, enemyPicks, allyBans, enemyBans); // TODO: Add bans to suggestions
 
     const response = {
       draft: {
