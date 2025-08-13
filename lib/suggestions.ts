@@ -19,6 +19,36 @@ export async function heroTotal() {
     return response.data.data.total;
 }
 
+export async function isLaneAvailableForHero(
+  potentialHeroId: number,
+  allyPicks: number[]
+) {
+  let potentialDraft = [...allyPicks, potentialHeroId];
+  // Make sure it's last?
+
+  let maskedConflicts = 0;
+  const playableLanes = new Set<string>();
+
+  for (const [index, heroId] of potentialDraft.entries()) {
+    const hero = await getHeroByIdExtended(heroId);
+    hero.lanes.forEach(lane => playableLanes.add(lane));
+
+    /*  
+    *   Check the number of heroes vs playable lanes
+    *   If there are more heroes than playable lanes
+    *   Then there must be a conflict
+    */
+    if (index+1 > playableLanes.size + maskedConflicts) {
+      if (heroId == potentialHeroId) {
+        return false;
+      }
+      // Mask any found conflicts
+      maskedConflicts++;
+    }
+  }
+  return true;
+}
+
 export async function weighingFunction(heroId: number, allyPicks: number[], enemyPicks: number[]) {
 
   const hero = await getHeroByIdExtended(heroId)
@@ -41,17 +71,17 @@ export async function weighingFunction(heroId: number, allyPicks: number[], enem
 
   // Team draft
   const synergyWith = hero.synergyWith.filter(num => allyPicks.includes(num));
-  const isLaneOpen = false;
+  const isLaneOpen = await isLaneAvailableForHero(heroId, allyPicks);
 
-  const teamDraftScore = (0.3*(synergyWith.length/5)) + (0.2*isLaneOpen);
+  const teamDraftScore = (0.3*(synergyWith.length/5)) + (0.4*isLaneOpen);
 
-  return (individualScore + enemyDraftScore + teamDraftScore)/3; // To make it out of 100
+  return (individualScore + enemyDraftScore + teamDraftScore);
 
 
 
 }
 
-export async function getSuggestions(allyPicks: number[], enemyPicks: number[]) {
+export async function getSuggestions(allyPicks: number[], enemyPicks: number[], allyBans: number[], enemyBans: number[]) {
 
     // Get hero total heros
     const total = await heroTotal();
@@ -59,12 +89,17 @@ export async function getSuggestions(allyPicks: number[], enemyPicks: number[]) 
     const allSuggestions = [];
 
     for(let heroId = 1; heroId < total; heroId++){
-      if (allyPicks.includes(heroId) || enemyPicks.includes(heroId))
+      if (
+        allyPicks.includes(heroId) ||
+        enemyPicks.includes(heroId) ||
+        allyBans.includes(heroId) ||
+        enemyBans.includes(heroId)
+      )
         continue;
 
       const heroScore = await weighingFunction(heroId, allyPicks, enemyPicks);
 
-      const heroDetails = getHeroByIdExtended(heroId);
+      const heroDetails = await getHeroByIdExtended(heroId);
 
       const suggestion = {
         heroId: String(heroId),
@@ -79,8 +114,8 @@ export async function getSuggestions(allyPicks: number[], enemyPicks: number[]) 
 
     allSuggestions.sort((a, b) => b.confidence - a.confidence);
 
-    const top3 = allSuggestions.slice(0,3);
+    const top5 = allSuggestions.slice(0,5);
 
 
-    return top3;
+    return top5;
 }
